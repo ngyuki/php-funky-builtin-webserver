@@ -1,2 +1,9 @@
 #!/usr/bin/env sh
-php -S 0.0.0.0:3000 "$@" "`dirname "$0"`/phpserver.route.php"
+
+fn="$0"
+
+if type -p readlink > /dev/null; then
+    fn="`readlink "$fn"`"
+fi
+
+php -S 0.0.0.0:3000 "$@" "`dirname "$fn"`/phpserver.route.php"
