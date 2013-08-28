@@ -1,2 +1,2 @@
 #!/usr/bin/env sh
-php -S 0.0.0.0:80 "$@" "`dirname "$0"`/phpserver.route.php"
+php -S 0.0.0.0:3000 "$@" "`dirname "$0"`/phpserver.route.php"
