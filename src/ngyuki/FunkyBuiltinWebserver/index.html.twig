@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Index of {{ path }}</title>
+<style>
+body, div, h1 {
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    color: #00f;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+header {
+    padding: 20px 20px;
+}
+
+nav {
+    padding: 10px 20px;
+    border: 1px solid #888;
+    border-width: 1px 0;
+    background: #f8f8f8;
+}
+
+article {
+    padding: 10px 20px;
+}
+
+li {
+    margin-top: 5px;
+}
+
+nav a,
+article a {
+    font-family: monospace;
+}
+
+footer {
+    border-top: 1px solid #888;
+    color: #888;
+    padding: 10px;
+}
+
+footer a {
+    color: #88f;
+}
+
+</style>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+</head>
+<body>
+
+<header>
+    <h1>Index of {{ path }}</h1>
+</header>
+
+<nav>
+    <a href="/">[root]</a>
+    {% for info in breadcrumb %}
+        / <a href="{{ info.url }}">{{ info.name }}</a>
+    {% endfor %}
+</nav>
+
+<article>
+    <ul>
+        {% for info in list %}
+        <li>
+            <a href="{{ info.url }}">{{ info.name }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</article>
+
+<footer>
+    <i>Powered by <a href="https://github.com/ngyuki/php-funky-builtin-webserver">ngyuki/php-funky-builtin-webserver</a></i>
+</footer>
+
+</body>
+</html>

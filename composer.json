@@ -1,0 +1,20 @@
+{
+    "name": "ngyuki/php-funky-builtin-webserver",
+    "type": "utility",
+    "description": "",
+    "keywords": [],
+    "homepage": "https://github.com/ngyuki/php-funky-builtin-webserver",
+    "license": "MIT",
+    "authors": [
+        { "name": "ngyuki", "email": "ngyuki.ts@gmail.com" }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "twig/twig": "1.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "ngyuki\\FunkyBuiltinWebserver": "src/"
+        }
+    }
+}
