@@ -3,81 +3,62 @@ namespace ngyuki\FunkyBuiltinWebserver;
 
 class Router
 {
-    private $base = null;
+    private $base;
+    private $renderer;
 
     public static function create()
     {
-        return new self;
+        return new self(getcwd());
     }
 
-    public function __construct($base = null)
+    public function __construct($base, Renderer $renderer = null)
     {
-        if ($base === null)
-        {
-            $base = getcwd();
-        }
-        else
-        {
-            $base = realpath($base);
+        $base = realpath($base);
 
-            if ($base === false)
-            {
-                throw new \RuntimeException("unable directory \$base.");
-            }
+        if ($base === false)
+        {
+            throw new \RuntimeException("invalid path \$base.");
+        }
+
+        if ($renderer === null)
+        {
+            $renderer = new Renderer();
         }
 
         $this->base = rtrim($base, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $this->renderer = $renderer;
     }
 
     public function run()
     {
         $path = $_SERVER['SCRIPT_NAME'];
+        $real = realpath($this->base . $path);
 
-        $path = $this->fixPath($path);
-
-        $full = $this->base . $path;
-
-        if (is_dir($full))
+        if (is_dir($real))
         {
-            $list = $this->collectDirectoryIndex($path, $full);
+            $filelist = $this->collectDirectoryIndex($path, $real);
             $breadcrumb = $this->collectBreadcrumb($path);
 
-            $this->render($path, $list, $breadcrumb);
+            $this->renderer->render($path, $filelist, $breadcrumb);
+
             return true;
         }
-        else if (is_file($full))
+        else if (is_file($real))
         {
-            $ext = pathinfo($full, PATHINFO_EXTENSION);
+            $ext = pathinfo($real, PATHINFO_EXTENSION);
             $resolver = new MimeResolver();
             $type = $resolver->resolve($ext);
 
             if ($type !== false)
             {
-                header("Content-Type: $type");
-                readfile($full);
+                $this->renderer->header('Content-Type', $type);
+                $this->renderer->rawfile($real);
+
                 return true;
             }
         }
 
         return false;
-    }
-
-    /**
-     * パスの先頭からスラッシュを除去して終端に付与
-     *
-     * @param string $path
-     * @return string
-     */
-    private function fixPath($path)
-    {
-        $path = trim($path, '/');
-
-        if (strlen($path))
-        {
-            $path = '/' . $path;
-        }
-
-        return $path;
     }
 
     /**
@@ -94,11 +75,11 @@ class Router
      * ディレクトリインデックスの情報を収集
      *
      * @param string $path
-     * @param string $full
+     * @param string $real
      *
      * @return array
      */
-    private function collectDirectoryIndex($path, $full)
+    private function collectDirectoryIndex($path, $real)
     {
         $path = '/' . trim($path, '/');
 
@@ -111,7 +92,7 @@ class Router
 
         $list = array();
 
-        foreach (new \FilesystemIterator($full) as $info)
+        foreach (new \FilesystemIterator($real) as $info)
         {
             $info instanceof \SplFileInfo;
 
@@ -156,30 +137,5 @@ class Router
         }
 
         return $list;
-    }
-
-    /**
-     * 表示
-     *
-     * @param string $path
-     * @param array $list
-     * @param array $breadcrumb
-     */
-    private function render($path, $filelist, $breadcrumb)
-    {
-        $loader = new \Twig_Loader_Filesystem(__DIR__);
-
-        $twig = new \Twig_Environment($loader, array(
-            'debug' => false,
-            'strict_variables' => true,
-        ));
-
-        $content = $twig->render('index.html.twig', array(
-            'path' => $path,
-            'filelist' => $filelist,
-            'breadcrumb' => $breadcrumb,
-        ));
-
-        echo $content;
     }
 }
