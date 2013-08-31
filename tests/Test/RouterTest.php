@@ -1,5 +1,5 @@
 <?php
-namespace Tests;
+namespace Test;
 
 use ngyuki\FunkyBuiltinWebserver\Router;
 

@@ -47,8 +47,16 @@ class Router
         }
         else if (is_file($full))
         {
-            //readfile($full);
-            //return true;
+            $ext = pathinfo($full, PATHINFO_EXTENSION);
+            $resolver = new MimeResolver();
+            $type = $resolver->resolve($ext);
+
+            if ($type !== false)
+            {
+                header("Content-Type: $type");
+                readfile($full);
+                return true;
+            }
         }
 
         return false;
@@ -113,6 +121,7 @@ class Router
 
             if ($info->isDir())
             {
+                $obj->name .= '/';
                 $obj->url .= '/';
             }
         }
@@ -156,7 +165,7 @@ class Router
      * @param array $list
      * @param array $breadcrumb
      */
-    private function render($path, $list, $breadcrumb)
+    private function render($path, $filelist, $breadcrumb)
     {
         $loader = new \Twig_Loader_Filesystem(__DIR__);
 
@@ -167,10 +176,9 @@ class Router
 
         $content = $twig->render('index.html.twig', array(
             'path' => $path,
-            'list' => $list,
+            'filelist' => $filelist,
             'breadcrumb' => $breadcrumb,
         ));
-
 
         echo $content;
     }

@@ -19,11 +19,14 @@
 
 ルータスクリプトを指定した場合
 
- - SCRIPT_FILENAME にはルータスクリプトを指定した場合と同じ方法で解決されたパスが入る
-    - ただしファイル名に解決出来ない場合はルータスクリプトのファイル名が入る
-
- - SCRIPT_NAME は解決されたファイル名
-    - PHP_SELF は SCRIPT_NAME に PATH_INFO を付与したもの
+ - SCRIPT_FILENAME
+    - PHPによって解決されたローカルファイルのパス
+    - ただしファイル名に解決できなかった場合はルータスクリプトのファイル名が入る
+ - SCRIPT_NAME
+    - 解決されたファイル名
+    - ファイル名に解決できなかった場合は URL のパス部分
+ - PHP_SELF
+    - SCRIPT_NAME に PATH_INFO を付与したもの
 </pre>
 
 </body>
