@@ -6,4 +6,46 @@ if type -p readlink > /dev/null; then
     fn="`readlink "$fn"`"
 fi
 
-php -S 0.0.0.0:3000 "$@" "`dirname "$fn"`/phpserver.route.php"
+route="`dirname "$fn"`/phpserver.route.php"
+server="127.0.0.1:3000"
+opts=()
+
+function opts
+{
+    opts=("${opts[@]}" "$@")
+}
+
+function debug
+{
+    #echo ">>> $@"
+    :
+}
+
+while [ "$OPTIND" -le "$#" ]; do
+    if getopts ":S:" opt; then
+        debug "opt $opt $OPTARG"
+        case "$opt" in
+            S)
+                server="$OPTARG"
+                ;;
+            :)
+                echo "$0: option requires an argument -- $OPTARG" 1>&2
+                exit 1
+                ;;
+            \?)
+                opts "-$OPTARG"
+                ;;
+        esac
+    else
+        eval opt=\${$OPTIND}
+        opts "$opt"
+        shift $OPTIND
+        OPTIND=1
+        debug "shift $opt"
+    fi
+done
+
+debug
+debug -S "$server" "${opts[@]}"
+
+php -S "$server" "${opts[@]}" -- "$route"
