@@ -1,24 +1,24 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 fn="$0"
 
 if type -p readlink > /dev/null; then
-    fn="`readlink "$fn"`"
+    fn="$(readlink "$fn")"
 fi
 
-route="`dirname "$fn"`/phpserver.route.php"
+route="$(dirname "$fn")/phpserver.route.php"
 server="127.0.0.1:3000"
 opts=()
 
 function opts
 {
-    opts=("${opts[@]}" "$@")
+    opts+=("$@")
 }
 
 function debug
 {
     #echo ">>> $@"
-    :
+    : $1
 }
 
 while [ "$OPTIND" -le "$#" ]; do
@@ -45,7 +45,23 @@ while [ "$OPTIND" -le "$#" ]; do
     fi
 done
 
-debug
-debug -S "$server" "${opts[@]}"
+open="$server"
 
-php -S "$server" "${opts[@]}" -- "$route"
+if [ "${server%:*}" == "0.0.0.0" ]; then
+    open="127.0.0.1"
+    if [ "${server#*:}" != "${server}" ]; then
+        open="$open:${server#*:}"
+    fi
+fi
+
+cmd=(php -S "$server" "${opts[@]}" -- "$route")
+
+debug "${cmd[@]}"
+
+if [ -n "$WINDIR" ]; then
+    ( sleep 1 && start "http://$open/" )&
+else
+    ( sleep 1 && open "http://$open/" )&
+fi
+
+${cmd[@]}
